@@ -1,0 +1,186 @@
+@startuml
+!theme plain
+hide circle
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+' ========== 实体定义（仅展示每个实体的一个关键键） ==========
+entity "User" as User {
+  * healthId : string <<PK>>
+  --
+  name : string  ' 复合属性（notes 中给出 firstName/lastName）
+}
+
+entity "ContactEmail" as ContactEmail {
+  * email : string <<PK>>
+  --
+  isVerified : boolean
+}
+
+entity "Phone" as Phone {
+  * phoneNumber : string <<PK>>
+  --
+  isVerified : boolean
+}
+
+entity "Provider" as Provider {
+  * licenseNumber : string <<PK>>
+  --
+  name : string
+  isVerified : boolean
+}
+
+' 特化/泛化层次：Provider 的子类
+entity "Doctor" as Doctor {
+  * licenseNumber : string <<PK>>
+}
+entity "Specialist" as Specialist {
+  * licenseNumber : string <<PK>>
+}
+entity "Therapist" as Therapist {
+  * licenseNumber : string <<PK>>
+}
+Doctor -|> Provider
+Specialist -|> Provider
+Therapist -|> Provider
+
+entity "UserProvider" as UserProvider {
+  * userProviderId : UUID <<PK>>
+  --
+  isPrimaryCare : boolean
+  linkedAt : datetime
+}
+
+entity "FamilyGroup" as FamilyGroup {
+  * groupId : UUID <<PK>>
+  --
+  name : string
+}
+
+entity "FamilyMembership" as FamilyMembership {
+  * membershipId : UUID <<PK>>
+  --
+  role : enum  ' guardian / member 等
+  joinedAt : datetime
+}
+
+' 用户-用户 递归权限关系通过连接实体表达角色
+entity "UserDelegation" as UserDelegation {
+  * delegationId : UUID <<PK>>
+  --
+  createdAt : datetime
+}
+
+entity "Appointment" as Appointment {
+  * appointmentId : UUID <<PK>>
+  --
+  dateTime : datetime
+  type : enum  ' InPerson / Virtual
+  memo : text?
+  status : enum  ' Scheduled / Cancelled
+  cancelReason : string?
+}
+
+entity "Challenge" as Challenge {
+  * challengeId : UUID <<PK>>
+  --
+  goal : string
+  startDate : date
+  endDate : date
+}
+
+entity "ChallengeParticipation" as ChallengeParticipation {
+  * participationId : UUID <<PK>>
+  --
+  progressValue : decimal?
+  status : enum  ' Invited / Joined / Completed / Declined
+  updatedAt : datetime
+}
+
+entity "Invitation" as Invitation {
+  * invitationId : UUID <<PK>>
+  --
+  type : enum  ' Challenge / ShareData
+  targetEmail : string?
+  targetPhone : string?
+  createdAt : datetime
+  completedAt : datetime?
+  expiresAt : datetime <<derived>>
+  status : enum  ' Pending / Accepted / Expired / Cancelled
+}
+
+entity "MonthlyReport" as MonthlyReport {
+  * reportId : UUID <<PK>>
+  --
+  month : string  ' YYYY-MM
+  summary : text
+  stepsTotal : integer <<derived>>
+}
+
+entity "HealthMetric" as HealthMetric {
+  * metricId : UUID <<PK>>
+  --
+  metricDate : date
+  metricType : enum  ' Steps / HeartRate / ...
+  metricValue : decimal
+}
+
+' ========== 关系与基数（传统 Crow's Foot） ==========
+' 联系方式：每个用户 0..N 邮箱；邮箱可独立存在（用于邀请）
+User |o--o{ ContactEmail : has
+note on link
+  (min,max) User→Email: (0,N) ; Email→User: (0,1)
+end note
+
+' 电话：每个用户 0..1 电话；电话可独立存在
+User o|--o| Phone : has
+note on link
+  (min,max) User→Phone: (0,1) ; Phone→User: (0,1)
+end note
+
+' 用户-提供者关联（含 primaryCare 标记）
+User ||--o{ UserProvider : links
+Provider ||--o{ UserProvider : linkedBy
+note right of UserProvider
+  约束：每 User 最多一条 isPrimaryCare=TRUE 的关联
+end note
+
+' 家庭组成员关系
+User ||--o{ FamilyMembership : member
+FamilyGroup ||--o{ FamilyMembership : includes
+
+' 用户-用户（监护/被监护）递归关系，通过连接实体标注角色
+User ||--o{ UserDelegation : guardian
+User ||--o{ UserDelegation : dependent
+note on link
+  角色：guardian / dependent；允许多对多
+end note
+
+' 预约：用户与提供者
+User ||--o{ Appointment : books
+Provider ||--o{ Appointment : serves
+note right of Appointment
+  约束：可在预约时间前 24 小时取消；记录取消原因
+end note
+
+' 挑战与参与
+User ||--o{ Challenge : creates
+Challenge ||--o{ ChallengeParticipation : has
+User ||--o{ ChallengeParticipation : participates
+
+' 邀请：由用户发起，指向挑战（可选）
+User ||--o{ Invitation : sends
+Invitation }o--|| Challenge : for
+note on link
+  15 天有效期：expiresAt=createdAt+15d（派生）
+end note
+
+' 月报与原始指标
+User ||--o{ MonthlyReport : has
+User ||--o{ HealthMetric : records
+
+@enduml
