@@ -20,3 +20,27 @@
    * 预约取消窗口：仅允许在预约时间前 ≥24 小时取消；取消需记录原因。
    * 邀请有效期：`expiresAt = createdAt + 15 days`；逾期转为 `Expired`，完成后不可再接受。
    * 验证要求：未验证的 `email/phone` 不得用于关键功能；仅验证通过的 `Provider` 可被正式关联或设为主治。
+
+```plantuml
+@startmindmap
+!theme plain
+skinparam monochrome true
+skinparam Shadowing false
+skinparam ArrowColor Black
+skinparam LineColor Black
+* ER图外约束与候选键（总结）
+** 附加候选键（按实体）
+*** UserProvider → (userId, providerId)
+*** FamilyMembership → (groupId, userId)
+*** UserDelegation → (guardianUserId, dependentUserId)
+*** Appointment → (userId, providerId, dateTime)
+*** ChallengeParticipation → (challengeId, userId)
+*** MonthlyReport → (userId, month)
+*** 其余实体：无额外候选键（主键已唯一或按题面允许重复）
+** 其他数据约束（ER 难以充分表达）
+*** Primary Care 唯一：同一用户 isPrimaryCare=TRUE ≤ 1
+*** 预约取消窗口：dateTime - now ≥ 24h 方可取消
+*** 邀请有效期：expiresAt = createdAt + 15d；逾期转 Expired
+*** 验证要求：仅 verified 的 email/phone/Provider 可用于关键操作
+@endmindmap
+```
