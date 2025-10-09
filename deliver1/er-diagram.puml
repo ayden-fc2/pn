@@ -137,7 +137,7 @@ note on link
 end note
 
 ' 电话：每个用户 0..1 电话；电话可独立存在
-User o|--o| Phone : has
+User |o--o| Phone : has
 note on link
   (min,max) User→Phone: (0,1) ; Phone→User: (0,1)
 end note
