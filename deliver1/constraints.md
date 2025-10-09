@@ -1,33 +1,22 @@
-# ER 图外的附加数据约束与附加键
+1. 附加候选键（按实体）
+   * User：无（`healthId` 为唯一身份标识）。
+   * ContactEmail：无（`email` 已为主键）。
+   * Phone：无（`phoneNumber` 已为主键）。
+   * Provider：无（`licenseNumber` 为唯一标识）。
+   * Doctor / Specialist / Therapist：无（继承 `Provider.licenseNumber`）。
+   * UserProvider：`(userId, providerId)`。
+   * FamilyGroup：无（`name` 允许重复）。
+   * FamilyMembership：`(groupId, userId)`。
+   * UserDelegation：`(guardianUserId, dependentUserId)`。
+   * Appointment：`(userId, providerId, dateTime)`。
+   * Challenge：无（避免对相同目标/日期的不同挑战过度约束）。
+   * ChallengeParticipation：`(challengeId, userId)`。
+   * Invitation：无（时间与目标组合不作为强唯一键）。
+   * MonthlyReport：`(userId, month)`。
+   * HealthMetric：无（若限定“同一用户/类型/日期唯一”才可作为候选键）。
 
-## 附加键（候选键）与唯一性
-- User：`healthId`（主键）；候选键：无（假设健康 ID 即唯一身份标识）。
-- ContactEmail：`email`（主键）；允许唯一。
-- Phone：`phoneNumber`（主键）；允许唯一。
-- Provider：`licenseNumber`（主键）；候选键：`(name, licenseNumber)` 仅信息性，不构成唯一性；如需，可约束 `licenseNumber` 唯一。
-- UserProvider：唯一性 `(userId, providerId)`；且 `isPrimaryCare=TRUE` 在同一 `userId` 上至多一条（部分唯一约束）。
-- FamilyGroup：`groupId`（主键）；`name` 可重复。
-- FamilyMembership：唯一性 `(groupId, userId)`，避免重复入组；`membershipId` 为技术键。
-- UserDelegation：唯一性 `(guardianUserId, dependentUserId)`，避免重复授权。
-- Appointment：`appointmentId`（主键）；可选唯一 `(userId, providerId, dateTime)` 以防重复预约。
-- Challenge：`challengeId`（主键）。
-- ChallengeParticipation：唯一性 `(challengeId, userId)`。
-- Invitation：业务去重可选 `(targetEmail/targetPhone, createdAt±ε)`；不强制唯一。
-- MonthlyReport：唯一性 `(userId, month)`。
-- HealthMetric：可选唯一 `(userId, metricType, metricDate, <time-bucket>)`。
-
-## 参照完整性与参与约束
-- 所有连接实体的外键均为必须存在（内侧 (1,1)）。
-- `Phone` 与 `ContactEmail` 允许悬置（用于未注册邀请），若与 `User` 关联则外键有效。
-- `Invitation` → `Challenge` 为可选外键（邀请可仅用于共享数据）。
-
-## 业务规则（语义约束）
-- 预约取消时间：仅允许在 `Appointment.dateTime - 24h` 之前取消。
-- Primary care 唯一性：每 `User` 同时仅允许一位 `isPrimaryCare=TRUE`。
-- 邀请有效期：`expiresAt = createdAt + 15 days`；过期后状态自动转为 `Expired`。
-- 参与唯一：`ChallengeParticipation` 针对 `(challengeId, userId)` 唯一。
-- 月报唯一：每用户每月最多一份 `MonthlyReport`（`(userId, month)` 唯一）。
-
-## 索引建议（实现层）
-- 高频检索：`Appointment(userId, dateTime)`、`Appointment(providerId, dateTime)`、`ChallengeParticipation(challengeId)`、`Invitation(status, createdAt)`、`HealthMetric(userId, metricType, metricDate)`。
-- 唯一索引：参见上节的唯一性约束。
+2. 其他数据约束（ER 图难以充分表达）
+   * Primary Care 唯一：同一用户同时最多一条 `isPrimaryCare=TRUE`（条件唯一）。
+   * 预约取消窗口：仅允许在预约时间前 ≥24 小时取消；取消需记录原因。
+   * 邀请有效期：`expiresAt = createdAt + 15 days`；逾期转为 `Expired`，完成后不可再接受。
+   * 验证要求：未验证的 `email/phone` 不得用于关键功能；仅验证通过的 `Provider` 可被正式关联或设为主治。
