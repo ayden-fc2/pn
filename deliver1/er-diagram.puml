@@ -1,5 +1,6 @@
 @startuml
 !theme plain
+top to bottom direction
 hide circle
 skinparam linetype ortho
 skinparam class {
@@ -7,6 +8,8 @@ skinparam class {
   ArrowColor Black
   BorderColor Black
 }
+skinparam nodesep 40
+skinparam ranksep 40
 
 ' ========== 实体定义（仅展示每个实体的一个关键键） ==========
 entity "User" as User {
@@ -128,6 +131,8 @@ entity "HealthMetric" as HealthMetric {
   metricType : enum  ' Steps / HeartRate / ...
   metricValue : decimal
 }
+
+' ========== 布局分组提示：移除 together 以避免语法错误 ==========
 
 ' ========== 关系与基数（传统 Crow's Foot） ==========
 ' 联系方式：每个用户 0..N 邮箱；邮箱可独立存在（用于邀请）

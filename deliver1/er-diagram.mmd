@@ -1,0 +1,145 @@
+%%{init: {'theme':'base', 'themeVariables': { 'fontSize':'14px'}}}%%
+erDiagram
+    %% Entities (each shows a single primary key as in the PUML)
+    USER {
+        string healthId PK
+        string name
+    }
+
+    CONTACTEMAIL {
+        string email PK
+        boolean isVerified
+    }
+
+    PHONE {
+        string phoneNumber PK
+        boolean isVerified
+    }
+
+    PROVIDER {
+        string licenseNumber PK
+        string name
+        boolean isVerified
+    }
+
+    DOCTOR {
+        string licenseNumber PK
+    }
+
+    SPECIALIST {
+        string licenseNumber PK
+    }
+
+    THERAPIST {
+        string licenseNumber PK
+    }
+
+    USERPROVIDER {
+        string userProviderId PK
+        boolean isPrimaryCare
+        datetime linkedAt
+    }
+
+    FAMILYGROUP {
+        string groupId PK
+        string name
+    }
+
+    FAMILYMEMBERSHIP {
+        string membershipId PK
+        enum role
+        datetime joinedAt
+    }
+
+    USERDELEGATION {
+        string delegationId PK
+        datetime createdAt
+    }
+
+    APPOINTMENT {
+        string appointmentId PK
+        datetime dateTime
+        enum type
+        text memo
+        enum status
+        string cancelReason
+    }
+
+    CHALLENGE {
+        string challengeId PK
+        string goal
+        date startDate
+        date endDate
+    }
+
+    CHALLENGEPARTICIPATION {
+        string participationId PK
+        decimal progressValue
+        enum status
+        datetime updatedAt
+    }
+
+    INVITATION {
+        string invitationId PK
+        enum type
+        string targetEmail
+        string targetPhone
+        datetime createdAt
+        datetime completedAt
+        datetime expiresAt
+        enum status
+    }
+
+    MONTHLYREPORT {
+        string reportId PK
+        string month
+        text summary
+        int stepsTotal
+    }
+
+    HEALTHMETRIC {
+        string metricId PK
+        date metricDate
+        enum metricType
+        decimal metricValue
+    }
+
+    %% === 关系组织（按实体分组以减少交叉） ===
+    
+    %% 1. Provider 层级（先声明特化关系）
+    PROVIDER ||--|| DOCTOR : "specializes"
+    PROVIDER ||--|| SPECIALIST : "specializes"
+    PROVIDER ||--|| THERAPIST : "specializes"
+    
+    %% 2. User 联系方式（紧邻 User）
+    USER ||--o{ CONTACTEMAIL : "has"
+    USER |o--o| PHONE : "has"
+    
+    %% 3. User-Provider 关联（连接实体）
+    USER ||--o{ USERPROVIDER : "links"
+    PROVIDER ||--o{ USERPROVIDER : "linkedBy"
+    
+    %% 4. 家庭组（独立簇）
+    FAMILYGROUP ||--o{ FAMILYMEMBERSHIP : "includes"
+    USER ||--o{ FAMILYMEMBERSHIP : "member"
+    
+    %% 5. User 递归委托（两条角色边）
+    USER ||--o{ USERDELEGATION : "guardian"
+    USER ||--o{ USERDELEGATION : "dependent"
+    
+    %% 6. 预约（User 与 Provider 交汇点）
+    USER ||--o{ APPOINTMENT : "books"
+    PROVIDER ||--o{ APPOINTMENT : "serves"
+    
+    %% 7. 挑战与参与（独立簇）
+    USER ||--o{ CHALLENGE : "creates"
+    CHALLENGE ||--o{ CHALLENGEPARTICIPATION : "has"
+    USER ||--o{ CHALLENGEPARTICIPATION : "participates"
+    
+    %% 8. 邀请（连接用户与挑战）
+    USER ||--o{ INVITATION : "sends"
+    INVITATION }o--o| CHALLENGE : "for"
+    
+    %% 9. 健康数据（User 右侧簇）
+    USER ||--o{ MONTHLYREPORT : "has"
+    USER ||--o{ HEALTHMETRIC : "records"
