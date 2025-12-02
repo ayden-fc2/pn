@@ -6,6 +6,15 @@ class ChallengeRepository:
         return query_db('SELECT * FROM WellnessChallenges')
 
     @staticmethod
+    def get_challenges_with_status(user_id):
+        return query_db('''
+            SELECT c.*, 
+                   CASE WHEN uc.user_id IS NOT NULL THEN 1 ELSE 0 END as joined
+            FROM WellnessChallenges c
+            LEFT JOIN UserChallenges uc ON c.challenge_id = uc.challenge_id AND uc.user_id = ?
+        ''', [user_id])
+
+    @staticmethod
     def create_challenge(creator_id, name, description, start_date, end_date):
         query_db('''
             INSERT INTO WellnessChallenges (creator_id, name, description, start_date, end_date)
@@ -16,6 +25,21 @@ class ChallengeRepository:
     def join_challenge(user_id, challenge_id):
         query_db('INSERT OR IGNORE INTO UserChallenges (user_id, challenge_id) VALUES (?, ?)', 
                  [user_id, challenge_id])
+
+    @staticmethod
+    def leave_challenge(user_id, challenge_id):
+        query_db('DELETE FROM UserChallenges WHERE user_id = ? AND challenge_id = ?', 
+                 [user_id, challenge_id])
+
+    @staticmethod
+    def count_active_challenges(user_id):
+        result = query_db('''
+            SELECT count(*) as count 
+            FROM UserChallenges uc
+            JOIN WellnessChallenges c ON uc.challenge_id = c.challenge_id
+            WHERE uc.user_id = ? AND c.end_date >= date('now')
+        ''', [user_id], one=True)
+        return result['count'] if result else 0
 
     @staticmethod
     def get_most_popular_challenge():

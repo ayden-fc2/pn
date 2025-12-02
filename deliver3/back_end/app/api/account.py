@@ -5,6 +5,8 @@ bp = Blueprint('account', __name__, url_prefix='/account')
 
 @bp.before_request
 def check_auth():
+    if request.method == 'OPTIONS':
+        return
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -20,6 +22,11 @@ def account():
         data = request.get_json()
         AccountService.update_account(user_id, data)
         return jsonify({'message': 'Account updated'})
+
+@bp.route('/providers', methods=['GET'])
+def get_all_providers():
+    providers = AccountService.get_all_providers()
+    return jsonify(providers)
 
 @bp.route('/email', methods=['POST', 'DELETE'])
 def manage_email():

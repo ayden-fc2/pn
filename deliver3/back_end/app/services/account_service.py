@@ -16,6 +16,11 @@ class AccountService:
         }
 
     @staticmethod
+    def get_all_providers():
+        providers = UserRepository.get_all_providers()
+        return [dict(p) for p in providers]
+
+    @staticmethod
     def update_account(user_id, data):
         if 'first_name' in data and 'last_name' in data and 'address' in data:
             UserRepository.update_user(user_id, data['first_name'], data['last_name'], data['address'])

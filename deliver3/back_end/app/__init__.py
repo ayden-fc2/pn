@@ -1,10 +1,12 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from . import db
 from .api import auth, account, appointments, challenges, summary
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
+    CORS(app, supports_credentials=True)
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'health_track.db'),

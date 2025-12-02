@@ -41,10 +41,15 @@ class UserRepository:
     @staticmethod
     def get_providers(user_id):
         return query_db('''
-            SELECT p.* FROM Providers p
+            SELECT p.provider_id, p.name as provider_name, p.specialty 
+            FROM Providers p
             JOIN UserProviders up ON p.provider_id = up.provider_id
             WHERE up.user_id = ?
         ''', [user_id])
+
+    @staticmethod
+    def get_all_providers():
+        return query_db('SELECT provider_id, name as provider_name, specialty FROM Providers')
 
     @staticmethod
     def add_provider(user_id, provider_id):

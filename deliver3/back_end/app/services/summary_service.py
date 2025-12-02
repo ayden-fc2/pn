@@ -6,6 +6,26 @@ from app.repositories.user_repository import UserRepository
 
 class SummaryService:
     @staticmethod
+    def get_dashboard_summary(user_id):
+        weight = MetricRepository.get_latest_metric(user_id, 'Weight')
+        height = MetricRepository.get_latest_metric(user_id, 'Height')
+        
+        bmi = 0
+        if weight and height:
+            height_m = height / 100
+            if height_m > 0:
+                bmi = weight / (height_m * height_m)
+        
+        active_challenges = ChallengeRepository.count_active_challenges(user_id)
+        upcoming_appointments = AppointmentRepository.count_upcoming_appointments(user_id)
+        
+        return {
+            'bmi': bmi,
+            'active_challenges': active_challenges,
+            'upcoming_appointments': upcoming_appointments
+        }
+
+    @staticmethod
     def get_monthly_summary(user_id, month):
         if not month:
             month = datetime.now().strftime('%Y-%m')

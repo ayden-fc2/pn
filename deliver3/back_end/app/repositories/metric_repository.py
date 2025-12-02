@@ -9,3 +9,14 @@ class MetricRepository:
             WHERE user_id = ? AND strftime('%Y-%m', recorded_date) = ?
             GROUP BY metric_type
         ''', [user_id, month])
+
+    @staticmethod
+    def get_latest_metric(user_id, metric_type):
+        result = query_db('''
+            SELECT value FROM HealthMetrics
+            WHERE user_id = ? AND metric_type = ?
+            ORDER BY recorded_date DESC
+            LIMIT 1
+        ''', [user_id, metric_type], one=True)
+        return result['value'] if result else None
+

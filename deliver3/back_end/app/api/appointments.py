@@ -5,6 +5,8 @@ bp = Blueprint('appointments', __name__)
 
 @bp.before_request
 def check_auth():
+    if request.method == 'OPTIONS':
+        return
     if 'user_id' not in session:
         return jsonify({'error': 'Unauthorized'}), 401
 
@@ -20,6 +22,11 @@ def appointments():
         data = request.get_json()
         AppointmentService.book_appointment(user_id, data)
         return jsonify({'message': 'Appointment booked'})
+
+@bp.route('/appointments/<int:appointment_id>', methods=['DELETE'])
+def delete_appointment(appointment_id):
+    AppointmentService.cancel_appointment(appointment_id)
+    return jsonify({'message': 'Appointment cancelled'})
 
 @bp.route('/search', methods=['GET'])
 def search_records():

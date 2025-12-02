@@ -26,6 +26,14 @@ class AppointmentRepository:
         return result['count'] if result else 0
 
     @staticmethod
+    def count_upcoming_appointments(user_id):
+        result = query_db('''
+            SELECT count(*) as count FROM Appointments
+            WHERE user_id = ? AND appointment_date >= datetime('now')
+        ''', [user_id], one=True)
+        return result['count'] if result else 0
+
+    @staticmethod
     def search_appointments(user_id, provider_name=None, app_type=None, start_date=None, end_date=None):
         query = '''
             SELECT a.*, p.name as provider_name 
@@ -47,5 +55,10 @@ class AppointmentRepository:
         if end_date:
             query += ' AND a.appointment_date <= ?'
             params.append(end_date)
-
+        
         return query_db(query, params)
+
+    @staticmethod
+    def delete_appointment(appointment_id):
+        query_db('DELETE FROM Appointments WHERE appointment_id = ?', [appointment_id])
+
