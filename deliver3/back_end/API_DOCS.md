@@ -51,8 +51,29 @@ Base URL: `http://127.0.0.1:5000`
         "user": { ... },
         "emails": [ ... ],
         "phones": [ ... ],
-        "providers": [ ... ]
+        "providers": [
+            {
+                "provider_id": 1,
+                "provider_name": "Dr. Smith",
+                "specialty": "Cardiology"
+            }
+        ]
     }
+    ```
+
+### Get All Providers
+*   **URL**: `/account/providers`
+*   **Method**: `GET`
+*   **Description**: Retrieves a list of all available healthcare providers.
+*   **Response**:
+    ```json
+    [
+        {
+            "provider_id": 1,
+            "provider_name": "Dr. Smith",
+            "specialty": "Cardiology"
+        }
+    ]
     ```
 
 ### Update Profile
@@ -100,6 +121,9 @@ Base URL: `http://127.0.0.1:5000`
             "appointment_id": 1,
             "provider_name": "Dr. Emily White",
             "appointment_date": "2023-10-15 10:00:00",
+            "date": "2023-10-15",
+            "time": "10:00",
+            "description": "Checkup",
             "status": "Completed",
             ...
         }
@@ -113,11 +137,17 @@ Base URL: `http://127.0.0.1:5000`
     ```json
     {
         "provider_id": 1,
-        "date": "2023-12-25 10:00:00",
-        "type": "Checkup"
+        "date": "2023-12-25",
+        "time": "10:00",
+        "description": "Checkup"
     }
     ```
 *   **Response**: `{"message": "Appointment booked"}`
+
+### Cancel Appointment
+*   **URL**: `/appointments/<appointment_id>`
+*   **Method**: `DELETE`
+*   **Response**: `{"message": "Appointment cancelled"}`
 
 ### Search Appointments
 *   **URL**: `/search`
@@ -136,7 +166,18 @@ Base URL: `http://127.0.0.1:5000`
 ### List Challenges
 *   **URL**: `/challenges`
 *   **Method**: `GET`
-*   **Response**: List of all available challenges.
+*   **Response**:
+    ```json
+    [
+        {
+            "challenge_id": 1,
+            "title": "Morning Run",
+            "description": "Run 5km every morning",
+            "joined": true,
+            ...
+        }
+    ]
+    ```
 
 ### Create Challenge
 *   **URL**: `/challenges`
@@ -153,14 +194,30 @@ Base URL: `http://127.0.0.1:5000`
 *   **Response**: `{"message": "Challenge created"}`
 
 ### Join Challenge
-*   **URL**: `/challenges/join`
+*   **URL**: `/challenges/<challenge_id>/join`
 *   **Method**: `POST`
-*   **Request Body**: `{"challenge_id": 1}`
 *   **Response**: `{"message": "Joined challenge"}`
+
+### Leave Challenge
+*   **URL**: `/challenges/<challenge_id>/leave`
+*   **Method**: `POST`
+*   **Response**: `{"message": "Left challenge"}`
 
 ---
 
 ## 5. Summary & Analytics
+
+### Dashboard Summary
+*   **URL**: `/summary`
+*   **Method**: `GET`
+*   **Response**:
+    ```json
+    {
+        "bmi": 22.5,
+        "active_challenges": 2,
+        "upcoming_appointments": 1
+    }
+    ```
 
 ### Monthly Summary
 *   **URL**: `/summary/monthly`
