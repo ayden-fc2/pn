@@ -9,11 +9,11 @@
           <v-card-text>
             <v-form @submit.prevent="handleLogin">
               <v-text-field
-                v-model="userId"
-                label="User ID"
+                v-model="email"
+                label="Email"
                 name="login"
-                prepend-icon="mdi-account"
-                type="number"
+                prepend-icon="mdi-email"
+                type="email"
                 required
               ></v-text-field>
 
@@ -51,17 +51,17 @@ export default defineComponent({
   setup() {
     const authStore = useAuthStore()
     const router = useRouter()
-    const userId = ref('')
+    const email = ref('')
     const password = ref('')
     const error = ref('')
 
     const handleLogin = async () => {
-      if (!userId.value || !password.value) {
-        error.value = 'Please enter User ID and Password'
+      if (!email.value || !password.value) {
+        error.value = 'Please enter Email and Password'
         return
       }
       
-      const success = await authStore.login(Number(userId.value), password.value)
+      const success = await authStore.login(email.value, password.value)
       if (success) {
         router.push('/')
       } else {
@@ -70,7 +70,7 @@ export default defineComponent({
     }
 
     return {
-      userId,
+      email,
       password,
       handleLogin,
       error

@@ -6,8 +6,13 @@ class UserRepository:
         return query_db('SELECT * FROM Users WHERE user_id = ?', [user_id], one=True)
 
     @staticmethod
-    def get_user_by_credentials(user_id, password):
-        return query_db('SELECT * FROM Users WHERE user_id = ? AND password = ?', [user_id, password], one=True)
+    def get_user_by_credentials(email, password):
+        return query_db('''
+            SELECT u.* 
+            FROM Users u
+            JOIN Emails e ON u.user_id = e.user_id
+            WHERE e.email_address = ? AND u.password = ?
+        ''', [email, password], one=True)
 
     @staticmethod
     def update_user(user_id, first_name, last_name, address):

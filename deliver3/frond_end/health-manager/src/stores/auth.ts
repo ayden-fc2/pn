@@ -7,9 +7,9 @@ export const useAuthStore = defineStore('auth', {
     isAuthenticated: false,
   }),
   actions: {
-    async login(userId: number, password: string) {
+    async login(email: string, password: string) {
       try {
-        const response = await api.post('/login', { user_id: userId, password })
+        const response = await api.post('/login', { email, password })
         this.user = response.data.user
         this.isAuthenticated = true
         return true

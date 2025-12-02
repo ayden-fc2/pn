@@ -6,10 +6,10 @@ bp = Blueprint('auth', __name__)
 @bp.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
-    user_id = data.get('user_id')
+    email = data.get('email')
     password = data.get('password')
     
-    user = AuthService.login(user_id, password)
+    user = AuthService.login(email, password)
     
     if user:
         session['user_id'] = user['user_id']
