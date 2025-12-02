@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from . import db
-from .api import auth, account, appointments, challenges, summary
+from .api import auth, account, appointments, challenges, summary, metrics
 
 def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
@@ -29,5 +29,6 @@ def create_app(test_config=None):
     app.register_blueprint(appointments.bp)
     app.register_blueprint(challenges.bp)
     app.register_blueprint(summary.bp)
+    app.register_blueprint(metrics.bp)
 
     return app

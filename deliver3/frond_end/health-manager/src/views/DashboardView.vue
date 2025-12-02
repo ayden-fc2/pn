@@ -9,6 +9,9 @@
             {{ summary.bmi.toFixed(1) }}
           </v-card-text>
           <v-card-subtitle>Category: {{ getBmiCategory(summary.bmi) }}</v-card-subtitle>
+          <v-card-actions>
+            <v-btn variant="text" @click="showUpdateMetrics = true">Update</v-btn>
+          </v-card-actions>
         </v-card>
       </v-col>
       <v-col cols="12" md="4">
@@ -33,6 +36,21 @@
         <v-progress-circular indeterminate color="primary"></v-progress-circular>
       </v-col>
     </v-row>
+
+    <v-dialog v-model="showUpdateMetrics" max-width="500px">
+      <v-card>
+        <v-card-title>Update Health Metrics</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="newWeight" label="Weight (kg)" type="number"></v-text-field>
+          <v-text-field v-model="newHeight" label="Height (cm)" type="number"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="primary" text @click="updateMetrics">Save</v-btn>
+          <v-btn color="grey" text @click="showUpdateMetrics = false">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
@@ -44,6 +62,9 @@ export default defineComponent({
   name: 'DashboardView',
   setup() {
     const summary = ref<any>(null)
+    const showUpdateMetrics = ref(false)
+    const newWeight = ref('')
+    const newHeight = ref('')
 
     const fetchSummary = async () => {
       try {
@@ -51,6 +72,23 @@ export default defineComponent({
         summary.value = response.data
       } catch (error) {
         console.error('Error fetching summary:', error)
+      }
+    }
+
+    const updateMetrics = async () => {
+      try {
+        if (newWeight.value) {
+          await api.post('/metrics', { type: 'Weight', value: Number(newWeight.value) })
+        }
+        if (newHeight.value) {
+          await api.post('/metrics', { type: 'Height', value: Number(newHeight.value) })
+        }
+        showUpdateMetrics.value = false
+        newWeight.value = ''
+        newHeight.value = ''
+        await fetchSummary()
+      } catch (error) {
+        console.error('Error updating metrics:', error)
       }
     }
 
@@ -67,7 +105,11 @@ export default defineComponent({
 
     return {
       summary,
-      getBmiCategory
+      getBmiCategory,
+      showUpdateMetrics,
+      newWeight,
+      newHeight,
+      updateMetrics
     }
   }
 })

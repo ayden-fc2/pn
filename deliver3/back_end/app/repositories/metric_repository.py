@@ -20,3 +20,11 @@ class MetricRepository:
         ''', [user_id, metric_type], one=True)
         return result['value'] if result else None
 
+    @staticmethod
+    def add_metric(user_id, metric_type, value, date):
+        query_db('''
+            INSERT INTO HealthMetrics (user_id, metric_type, value, recorded_date)
+            VALUES (?, ?, ?, ?)
+        ''', [user_id, metric_type, value, date])
+
+
