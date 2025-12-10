@@ -2,8 +2,9 @@
   <v-container>
     <h1 class="text-h4 mb-4">Dashboard</h1>
     <v-row v-if="summary">
+      <!-- BMI Card -->
       <v-col cols="12" md="4">
-        <v-card color="primary" dark>
+        <v-card color="primary" dark height="100%">
           <v-card-title class="text-h5">BMI</v-card-title>
           <v-card-text class="text-h2 font-weight-bold">
             {{ summary.bmi.toFixed(1) }}
@@ -14,19 +15,72 @@
           </v-card-actions>
         </v-card>
       </v-col>
+
+      <!-- Invitations Card -->
       <v-col cols="12" md="4">
-        <v-card color="success" dark>
-          <v-card-title class="text-h5">Active Challenges</v-card-title>
+        <v-card color="warning" dark height="100%" to="/invitations">
+          <v-card-title class="text-h5">Pending Invitations</v-card-title>
           <v-card-text class="text-h2 font-weight-bold">
-            {{ summary.active_challenges }}
+            {{ summary.pending_invitations }}
+          </v-card-text>
+          <v-card-subtitle>Click to view details</v-card-subtitle>
+        </v-card>
+      </v-col>
+
+      <!-- Stats Summary -->
+      <v-col cols="12" md="4">
+        <v-card height="100%">
+            <v-card-title>Quick Stats</v-card-title>
+            <v-list density="compact">
+                <v-list-item>
+                    <v-list-item-title>Active Challenges</v-list-item-title>
+                    <template v-slot:append>{{ summary.active_challenges_count }}</template>
+                </v-list-item>
+                <v-list-item>
+                    <v-list-item-title>Upcoming Appointments</v-list-item-title>
+                    <template v-slot:append>{{ summary.upcoming_appointments_count }}</template>
+                </v-list-item>
+            </v-list>
+        </v-card>
+      </v-col>
+
+      <!-- Upcoming Appointments List -->
+      <v-col cols="12" md="6">
+        <v-card height="100%">
+          <v-card-title class="d-flex justify-space-between align-center">
+            Upcoming Appointments
+            <v-btn variant="text" size="small" to="/appointments">View All</v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-list v-if="summary.upcoming_appointments.length > 0">
+              <v-list-item v-for="app in summary.upcoming_appointments" :key="app.appointment_id">
+                <v-list-item-title>{{ app.appointment_type }} with {{ app.provider_name }}</v-list-item-title>
+                <v-list-item-subtitle>{{ new Date(app.appointment_date).toLocaleString() }}</v-list-item-subtitle>
+              </v-list-item>
+            </v-list>
+            <div v-else class="text-center pa-4 text-grey">No upcoming appointments</div>
           </v-card-text>
         </v-card>
       </v-col>
-      <v-col cols="12" md="4">
-        <v-card color="info" dark>
-          <v-card-title class="text-h5">Upcoming Appointments</v-card-title>
-          <v-card-text class="text-h2 font-weight-bold">
-            {{ summary.upcoming_appointments }}
+
+      <!-- Active Challenges List -->
+      <v-col cols="12" md="6">
+        <v-card height="100%">
+          <v-card-title class="d-flex justify-space-between align-center">
+            Active Challenges
+            <v-btn variant="text" size="small" to="/challenges">View All</v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-list v-if="summary.active_challenges.length > 0">
+              <v-list-item v-for="chal in summary.active_challenges" :key="chal.challenge_id">
+                <v-list-item-title>{{ chal.name }}</v-list-item-title>
+                <v-list-item-subtitle>Goal: {{ chal.goal }}</v-list-item-subtitle>
+                <template v-slot:append>
+                    <v-chip size="small" color="info">{{ chal.progress_value }}</v-chip>
+                </template>
+              </v-list-item>
+            </v-list>
+            <div v-else class="text-center pa-4 text-grey">No active challenges</div>
           </v-card-text>
         </v-card>
       </v-col>

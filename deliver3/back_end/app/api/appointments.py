@@ -25,7 +25,9 @@ def appointments():
 
 @bp.route('/appointments/<int:appointment_id>', methods=['DELETE'])
 def delete_appointment(appointment_id):
-    AppointmentService.cancel_appointment(appointment_id)
+    data = request.get_json() or {}
+    reason = data.get('reason')
+    AppointmentService.cancel_appointment(appointment_id, reason)
     return jsonify({'message': 'Appointment cancelled'})
 
 @bp.route('/search', methods=['GET'])

@@ -11,11 +11,19 @@ class AppointmentRepository:
         ''', [user_id])
 
     @staticmethod
-    def create_appointment(user_id, provider_id, date, app_type):
+    def create_appointment(user_id, provider_id, date, app_type, memo=None):
         query_db('''
-            INSERT INTO Appointments (user_id, provider_id, appointment_date, appointment_type)
-            VALUES (?, ?, ?, ?)
-        ''', [user_id, provider_id, date, app_type])
+            INSERT INTO Appointments (user_id, provider_id, appointment_date, appointment_type, memo)
+            VALUES (?, ?, ?, ?, ?)
+        ''', [user_id, provider_id, date, app_type, memo])
+
+    @staticmethod
+    def cancel_appointment(appointment_id, reason=None):
+        query_db('''
+            UPDATE Appointments 
+            SET status = 'Cancelled', cancel_reason = ? 
+            WHERE appointment_id = ?
+        ''', [reason, appointment_id])
 
     @staticmethod
     def count_appointments_by_month(user_id, month):
@@ -61,4 +69,15 @@ class AppointmentRepository:
     @staticmethod
     def delete_appointment(appointment_id):
         query_db('DELETE FROM Appointments WHERE appointment_id = ?', [appointment_id])
+
+    @staticmethod
+    def get_upcoming_appointments(user_id, limit=3):
+        return query_db('''
+            SELECT a.*, p.name as provider_name 
+            FROM Appointments a 
+            JOIN Providers p ON a.provider_id = p.provider_id 
+            WHERE a.user_id = ? AND a.appointment_date >= datetime('now')
+            ORDER BY a.appointment_date ASC
+            LIMIT ?
+        ''', [user_id, limit])
 

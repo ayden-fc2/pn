@@ -26,8 +26,11 @@
                 label="Select Provider"
               ></v-select>
             </v-col>
-            <v-col cols="12">
-              <v-text-field v-model="newAppointment.description" label="Description"></v-text-field>
+            <v-col cols="12" md="6">
+              <v-text-field v-model="newAppointment.description" label="Type (e.g. Checkup)"></v-text-field>
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field v-model="newAppointment.memo" label="Memo (Optional)"></v-text-field>
             </v-col>
           </v-row>
           <v-btn color="primary" type="submit">Schedule</v-btn>
@@ -43,7 +46,9 @@
             <th class="text-left">Date</th>
             <th class="text-left">Time</th>
             <th class="text-left">Provider</th>
-            <th class="text-left">Description</th>
+            <th class="text-left">Type</th>
+            <th class="text-left">Memo</th>
+            <th class="text-left">Status</th>
             <th class="text-left">Actions</th>
           </tr>
         </thead>
@@ -53,16 +58,40 @@
             <td>{{ apt.time }}</td>
             <td>{{ apt.provider_name }}</td>
             <td>{{ apt.description }}</td>
+            <td>{{ apt.memo }}</td>
+            <td>{{ apt.status }}</td>
             <td>
-              <v-btn icon="mdi-delete" size="small" color="error" variant="text" @click="cancelAppointment(apt.appointment_id)"></v-btn>
+              <v-btn 
+                v-if="apt.status !== 'Cancelled'"
+                icon="mdi-cancel" 
+                size="small" 
+                color="error" 
+                variant="text" 
+                @click="openCancelDialog(apt.appointment_id)"
+              ></v-btn>
             </td>
           </tr>
           <tr v-if="appointments.length === 0">
-            <td colspan="5" class="text-center">No appointments found</td>
+            <td colspan="7" class="text-center">No appointments found</td>
           </tr>
         </tbody>
       </v-table>
     </v-card>
+
+    <!-- Cancel Dialog -->
+    <v-dialog v-model="showCancelDialog" max-width="400">
+      <v-card>
+        <v-card-title>Cancel Appointment</v-card-title>
+        <v-card-text>
+          <v-text-field v-model="cancelReason" label="Reason for cancellation"></v-text-field>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="grey" text @click="showCancelDialog = false">Close</v-btn>
+          <v-btn color="error" text @click="confirmCancel">Confirm Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-snackbar v-model="snackbar" :color="snackbarColor">
       {{ snackbarText }}
@@ -86,8 +115,13 @@ export default defineComponent({
       date: '',
       time: '',
       provider_id: null,
-      description: ''
+      description: '',
+      memo: ''
     })
+    
+    const showCancelDialog = ref(false)
+    const cancelReason = ref('')
+    const selectedAppointmentId = ref<number | null>(null)
 
     const timeSlots = [
       '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
@@ -133,9 +167,10 @@ export default defineComponent({
           date: newAppointment.value.date,
           time: newAppointment.value.time,
           provider_id: Number(newAppointment.value.provider_id),
-          description: newAppointment.value.description
+          description: newAppointment.value.description,
+          memo: newAppointment.value.memo
         })
-        newAppointment.value = { date: '', time: '', provider_id: null, description: '' }
+        newAppointment.value = { date: '', time: '', provider_id: null, description: '', memo: '' }
         await fetchAppointments()
         showMessage('Appointment scheduled')
       } catch (error) {
@@ -143,16 +178,25 @@ export default defineComponent({
       }
     }
 
-    const cancelAppointment = async (id: number) => {
+    const openCancelDialog = (id: number) => {
+      selectedAppointmentId.value = id
+      cancelReason.value = ''
+      showCancelDialog.value = true
+    }
+
+    const confirmCancel = async () => {
+      if (!selectedAppointmentId.value) return
       try {
-        await api.delete(`/appointments/${id}`)
+        await api.delete(`/appointments/${selectedAppointmentId.value}`, {
+          data: { reason: cancelReason.value }
+        })
         await fetchAppointments()
         showMessage('Appointment cancelled')
+        showCancelDialog.value = false
       } catch (error) {
         showMessage('Failed to cancel appointment', 'error')
       }
     }
-
     onMounted(() => {
       fetchAppointments()
       fetchAllProviders()
@@ -164,7 +208,10 @@ export default defineComponent({
       newAppointment,
       timeSlots,
       scheduleAppointment,
-      cancelAppointment,
+      openCancelDialog,
+      confirmCancel,
+      showCancelDialog,
+      cancelReason,
       snackbar,
       snackbarText,
       snackbarColor

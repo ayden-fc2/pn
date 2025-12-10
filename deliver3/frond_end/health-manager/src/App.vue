@@ -15,6 +15,9 @@
         <v-list-item prepend-icon="mdi-account" title="Account" to="/account"></v-list-item>
         <v-list-item prepend-icon="mdi-calendar" title="Appointments" to="/appointments"></v-list-item>
         <v-list-item prepend-icon="mdi-trophy" title="Challenges" to="/challenges"></v-list-item>
+        <v-list-item prepend-icon="mdi-account-group" title="Family" to="/family"></v-list-item>
+        <v-list-item prepend-icon="mdi-email-outline" title="Invitations" to="/invitations"></v-list-item>
+        <v-list-item prepend-icon="mdi-account-key" title="Delegation" to="/delegation"></v-list-item>
       </v-list>
     </v-navigation-drawer>
 

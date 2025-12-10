@@ -5,6 +5,9 @@ import DashboardView from '../views/DashboardView.vue'
 import AccountView from '../views/AccountView.vue'
 import AppointmentsView from '../views/AppointmentsView.vue'
 import ChallengesView from '../views/ChallengesView.vue'
+import FamilyView from '../views/FamilyView.vue'
+import InvitationsView from '../views/InvitationsView.vue'
+import DelegationView from '../views/DelegationView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -34,6 +37,24 @@ const routes: Array<RouteRecordRaw> = [
     path: '/challenges',
     name: 'challenges',
     component: ChallengesView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/family',
+    name: 'family',
+    component: FamilyView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/invitations',
+    name: 'invitations',
+    component: InvitationsView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/delegation',
+    name: 'delegation',
+    component: DelegationView,
     meta: { requiresAuth: true }
   }
 ]

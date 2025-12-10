@@ -64,3 +64,8 @@ def manage_provider():
     elif request.method == 'DELETE':
         AccountService.delete_provider(user_id, provider_id)
         return jsonify({'message': 'Provider unlinked'})
+
+@bp.route('/users', methods=['GET'])
+def get_all_users():
+    users = AccountService.get_all_users()
+    return jsonify(users)

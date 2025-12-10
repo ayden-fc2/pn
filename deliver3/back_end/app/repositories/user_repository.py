@@ -46,7 +46,7 @@ class UserRepository:
     @staticmethod
     def get_providers(user_id):
         return query_db('''
-            SELECT p.provider_id, p.name as provider_name, p.specialty 
+            SELECT p.provider_id, p.name as provider_name, p.specialty, p.is_verified, up.is_primary_care, up.linked_at
             FROM Providers p
             JOIN UserProviders up ON p.provider_id = up.provider_id
             WHERE up.user_id = ?
@@ -74,3 +74,7 @@ class UserRepository:
             ORDER BY record_count DESC
             LIMIT 1
         ''', one=True)
+
+    @staticmethod
+    def get_all_users():
+        return query_db('SELECT user_id, first_name, last_name FROM Users')

@@ -22,9 +22,14 @@ class ChallengeService:
             user_id, 
             data['name'], 
             data['description'], 
+            data.get('goal'),
             data['start_date'], 
             data['end_date']
         )
+
+    @staticmethod
+    def update_progress(user_id, challenge_id, progress_value):
+        ChallengeRepository.update_progress(user_id, challenge_id, progress_value)
 
     @staticmethod
     def join_challenge(user_id, challenge_id):

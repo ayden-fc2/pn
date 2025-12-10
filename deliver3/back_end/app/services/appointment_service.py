@@ -40,12 +40,13 @@ class AppointmentService:
         
         appointment_date = f"{date_str} {time_str}"
         app_type = data.get('description', 'General')
+        memo = data.get('memo')
         
-        AppointmentRepository.create_appointment(user_id, data['provider_id'], appointment_date, app_type)
+        AppointmentRepository.create_appointment(user_id, data['provider_id'], appointment_date, app_type, memo)
 
     @staticmethod
-    def cancel_appointment(appointment_id):
-        AppointmentRepository.delete_appointment(appointment_id)
+    def cancel_appointment(appointment_id, reason=None):
+        AppointmentRepository.cancel_appointment(appointment_id, reason)
 
     @staticmethod
     def search_appointments(user_id, filters):

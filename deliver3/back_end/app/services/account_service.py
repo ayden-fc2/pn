@@ -8,11 +8,31 @@ class AccountService:
         phones = UserRepository.get_phones(user_id)
         providers = UserRepository.get_providers(user_id)
         
+        # Convert rows to dicts and handle boolean fields
+        provider_list = []
+        for p in providers:
+            d = dict(p)
+            d['is_verified'] = bool(d.get('is_verified', 0))
+            d['is_primary_care'] = bool(d.get('is_primary_care', 0))
+            provider_list.append(d)
+
+        email_list = []
+        for e in emails:
+            d = dict(e)
+            d['is_verified'] = bool(d.get('is_verified', 0))
+            email_list.append(d)
+
+        phone_list = []
+        for p in phones:
+            d = dict(p)
+            d['is_verified'] = bool(d.get('is_verified', 0))
+            phone_list.append(d)
+
         return {
             'user': dict(user) if user else None,
-            'emails': [dict(e) for e in emails],
-            'phones': [dict(p) for p in phones],
-            'providers': [dict(p) for p in providers]
+            'emails': email_list,
+            'phones': phone_list,
+            'providers': provider_list
         }
 
     @staticmethod
@@ -48,3 +68,8 @@ class AccountService:
     @staticmethod
     def delete_provider(user_id, provider_id):
         UserRepository.delete_provider(user_id, provider_id)
+
+    @staticmethod
+    def get_all_users():
+        users = UserRepository.get_all_users()
+        return [dict(u) for u in users]

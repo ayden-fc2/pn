@@ -9,17 +9,27 @@ class ChallengeRepository:
     def get_challenges_with_status(user_id):
         return query_db('''
             SELECT c.*, 
-                   CASE WHEN uc.user_id IS NOT NULL THEN 1 ELSE 0 END as joined
+                   CASE WHEN uc.user_id IS NOT NULL THEN 1 ELSE 0 END as joined,
+                   uc.status as user_status,
+                   uc.progress_value
             FROM WellnessChallenges c
             LEFT JOIN UserChallenges uc ON c.challenge_id = uc.challenge_id AND uc.user_id = ?
         ''', [user_id])
 
     @staticmethod
-    def create_challenge(creator_id, name, description, start_date, end_date):
+    def create_challenge(creator_id, name, description, goal, start_date, end_date):
         query_db('''
-            INSERT INTO WellnessChallenges (creator_id, name, description, start_date, end_date)
-            VALUES (?, ?, ?, ?, ?)
-        ''', [creator_id, name, description, start_date, end_date])
+            INSERT INTO WellnessChallenges (creator_id, name, description, goal, start_date, end_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', [creator_id, name, description, goal, start_date, end_date])
+
+    @staticmethod
+    def update_progress(user_id, challenge_id, progress_value):
+        query_db('''
+            UPDATE UserChallenges 
+            SET progress_value = ? 
+            WHERE user_id = ? AND challenge_id = ?
+        ''', [progress_value, user_id, challenge_id])
 
     @staticmethod
     def join_challenge(user_id, challenge_id):
@@ -51,3 +61,12 @@ class ChallengeRepository:
             ORDER BY participant_count DESC
             LIMIT 1
         ''', one=True)
+
+    @staticmethod
+    def get_active_challenges(user_id):
+        return query_db('''
+            SELECT c.*, uc.progress_value, uc.status as user_status
+            FROM WellnessChallenges c
+            JOIN UserChallenges uc ON c.challenge_id = uc.challenge_id
+            WHERE uc.user_id = ? AND uc.status = 'Active' AND c.end_date >= date('now')
+        ''', [user_id])

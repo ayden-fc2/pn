@@ -8,9 +8,22 @@
           <v-card-title>{{ challenge.title }}</v-card-title>
           <v-card-text>
             <p>{{ challenge.description }}</p>
+            <p class="text-caption mt-1"><strong>Goal:</strong> {{ challenge.goal || 'N/A' }}</p>
             <div class="mt-2">
               <v-chip v-if="challenge.joined" color="success" class="mr-2">Joined</v-chip>
               <v-chip v-else color="grey">Not Joined</v-chip>
+            </div>
+            <div v-if="challenge.joined" class="mt-3">
+              <p class="text-caption">Progress: {{ challenge.progress_value || 0 }}</p>
+              <v-text-field 
+                v-model="challenge.newProgress" 
+                label="Update Progress" 
+                type="number" 
+                density="compact"
+                hide-details
+                append-inner-icon="mdi-check"
+                @click:append-inner="updateProgress(challenge)"
+              ></v-text-field>
             </div>
           </v-card-text>
           <v-card-actions>
@@ -78,6 +91,19 @@ export default defineComponent({
       }
     }
 
+    const updateProgress = async (challenge: any) => {
+      if (!challenge.newProgress) return
+      try {
+        await api.post(`/challenges/${challenge.challenge_id}/progress`, {
+          progress_value: Number(challenge.newProgress)
+        })
+        await fetchChallenges()
+        showMessage('Progress updated')
+      } catch (error) {
+        showMessage('Failed to update progress', 'error')
+      }
+    }
+
     onMounted(() => {
       fetchChallenges()
     })
@@ -86,6 +112,7 @@ export default defineComponent({
       challenges,
       joinChallenge,
       leaveChallenge,
+      updateProgress,
       snackbar,
       snackbarText,
       snackbarColor

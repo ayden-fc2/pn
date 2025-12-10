@@ -35,3 +35,11 @@ def leave_challenge(challenge_id):
     ChallengeService.leave_challenge(user_id, challenge_id)
     return jsonify({'message': 'Left challenge'})
 
+@bp.route('/<int:challenge_id>/progress', methods=['POST'])
+def update_progress(challenge_id):
+    user_id = session['user_id']
+    data = request.get_json()
+    progress = data.get('progress_value')
+    ChallengeService.update_progress(user_id, challenge_id, progress)
+    return jsonify({'message': 'Progress updated'})
+

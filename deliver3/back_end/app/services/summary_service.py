@@ -3,6 +3,7 @@ from app.repositories.metric_repository import MetricRepository
 from app.repositories.appointment_repository import AppointmentRepository
 from app.repositories.challenge_repository import ChallengeRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.invitation_repository import InvitationRepository
 
 class SummaryService:
     @staticmethod
@@ -16,13 +17,26 @@ class SummaryService:
             if height_m > 0:
                 bmi = weight / (height_m * height_m)
         
-        active_challenges = ChallengeRepository.count_active_challenges(user_id)
-        upcoming_appointments = AppointmentRepository.count_upcoming_appointments(user_id)
+        active_challenges_count = ChallengeRepository.count_active_challenges(user_id)
+        upcoming_appointments_count = AppointmentRepository.count_upcoming_appointments(user_id)
         
+        # New data
+        upcoming_appointments = AppointmentRepository.get_upcoming_appointments(user_id)
+        active_challenges = ChallengeRepository.get_active_challenges(user_id)
+        
+        # Get pending invitations count
+        emails = UserRepository.get_emails(user_id)
+        pending_invitations = 0
+        for email_row in emails:
+            pending_invitations += InvitationRepository.count_pending_invitations(email_row['email_address'])
+
         return {
             'bmi': bmi,
-            'active_challenges': active_challenges,
-            'upcoming_appointments': upcoming_appointments
+            'active_challenges_count': active_challenges_count,
+            'upcoming_appointments_count': upcoming_appointments_count,
+            'upcoming_appointments': [dict(a) for a in upcoming_appointments],
+            'active_challenges': [dict(c) for c in active_challenges],
+            'pending_invitations': pending_invitations
         }
 
     @staticmethod
