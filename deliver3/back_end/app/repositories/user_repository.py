@@ -54,7 +54,11 @@ class UserRepository:
 
     @staticmethod
     def get_all_providers():
-        return query_db('SELECT provider_id, name as provider_name, specialty FROM Providers')
+        return query_db('SELECT provider_id, name as provider_name, specialty, is_verified FROM Providers')
+
+    @staticmethod
+    def get_provider_by_id(provider_id):
+        return query_db('SELECT * FROM Providers WHERE provider_id = ?', [provider_id], one=True)
 
     @staticmethod
     def add_provider(user_id, provider_id):

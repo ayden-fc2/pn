@@ -46,6 +46,21 @@ class AppointmentService:
 
     @staticmethod
     def cancel_appointment(appointment_id, reason=None):
+        app = AppointmentRepository.get_appointment_by_id(appointment_id)
+        if not app:
+            raise ValueError("Appointment not found")
+        
+        # Check 24h window
+        app_date_str = str(app['appointment_date'])
+        if 'T' in app_date_str:
+            app_date = datetime.fromisoformat(app_date_str)
+        else:
+            app_date = datetime.strptime(app_date_str, '%Y-%m-%d %H:%M:%S')
+            
+        time_diff = app_date - datetime.now()
+        if time_diff.total_seconds() < 24 * 3600:
+            raise ValueError("Cannot cancel appointment within 24 hours")
+
         AppointmentRepository.cancel_appointment(appointment_id, reason)
 
     @staticmethod

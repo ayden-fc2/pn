@@ -1,6 +1,7 @@
 from app.repositories.invitation_repository import InvitationRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.challenge_repository import ChallengeRepository
+from datetime import datetime, timedelta
 
 class InvitationService:
     @staticmethod
@@ -29,6 +30,17 @@ class InvitationService:
         invitation = InvitationRepository.get_invitation_by_id(invitation_id)
         if not invitation:
             raise ValueError("Invitation not found")
+        
+        # Check expiry (15 days)
+        created_at_str = str(invitation['created_at'])
+        if 'T' in created_at_str:
+            created_at = datetime.fromisoformat(created_at_str)
+        else:
+            created_at = datetime.strptime(created_at_str, '%Y-%m-%d %H:%M:%S')
+            
+        if datetime.now() > created_at + timedelta(days=15):
+            InvitationRepository.update_status(invitation_id, 'Expired')
+            raise ValueError("Invitation has expired")
         
         InvitationRepository.update_status(invitation_id, status)
         

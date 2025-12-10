@@ -151,3 +151,8 @@ CREATE TABLE IF NOT EXISTS MonthlyReport (
     FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
     UNIQUE(user_id, month) -- Constraint: One report per user per month
 );
+
+-- Partial unique index to ensure only one primary care provider per user
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_primary_care 
+ON UserProviders(user_id) 
+WHERE is_primary_care = 1;

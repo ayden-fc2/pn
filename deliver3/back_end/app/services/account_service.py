@@ -63,6 +63,13 @@ class AccountService:
 
     @staticmethod
     def add_provider(user_id, provider_id):
+        provider = UserRepository.get_provider_by_id(provider_id)
+        if not provider:
+            raise ValueError("Provider not found")
+        
+        if not provider['is_verified']:
+            raise ValueError("Cannot link unverified provider")
+            
         UserRepository.add_provider(user_id, provider_id)
 
     @staticmethod

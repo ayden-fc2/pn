@@ -18,6 +18,10 @@ class AppointmentRepository:
         ''', [user_id, provider_id, date, app_type, memo])
 
     @staticmethod
+    def get_appointment_by_id(appointment_id):
+        return query_db('SELECT * FROM Appointments WHERE appointment_id = ?', [appointment_id], one=True)
+
+    @staticmethod
     def cancel_appointment(appointment_id, reason=None):
         query_db('''
             UPDATE Appointments 

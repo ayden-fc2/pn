@@ -59,8 +59,11 @@ def manage_provider():
     provider_id = data.get('provider_id')
 
     if request.method == 'POST':
-        AccountService.add_provider(user_id, provider_id)
-        return jsonify({'message': 'Provider linked'})
+        try:
+            AccountService.add_provider(user_id, provider_id)
+            return jsonify({'message': 'Provider linked'})
+        except ValueError as e:
+            return jsonify({'error': str(e)}), 400
     elif request.method == 'DELETE':
         AccountService.delete_provider(user_id, provider_id)
         return jsonify({'message': 'Provider unlinked'})
