@@ -81,8 +81,9 @@ export default defineComponent({
         await api.post(`/invitations/${id}/respond`, { status })
         await fetchInvitations()
         showMessage(`Invitation ${status}`)
-      } catch (error) {
-        showMessage('Failed to respond', 'error')
+      } catch (error: any) {
+        const msg = error.response?.data?.error || 'Failed to respond'
+        showMessage(msg, 'error')
       }
     }
 

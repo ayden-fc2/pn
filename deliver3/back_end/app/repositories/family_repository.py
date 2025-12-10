@@ -1,4 +1,4 @@
-from app.db import query_db
+from app.db import query_db, get_db
 
 class FamilyRepository:
     @staticmethod
@@ -21,8 +21,14 @@ class FamilyRepository:
 
     @staticmethod
     def create_family_group(name):
-        cursor = query_db('INSERT INTO FamilyGroup (name) VALUES (?)', [name])
+        db = get_db()
+        cursor = db.execute('INSERT INTO FamilyGroup (name) VALUES (?)', [name])
+        db.commit()
         return cursor.lastrowid
+
+    @staticmethod
+    def delete_family_group(group_id):
+        query_db('DELETE FROM FamilyGroup WHERE group_id = ?', [group_id])
 
     @staticmethod
     def add_member(group_id, user_id, role='Member'):

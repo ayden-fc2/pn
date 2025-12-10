@@ -16,3 +16,15 @@ def add_metric():
     data = request.get_json()
     MetricService.add_metric(user_id, data)
     return jsonify({'message': 'Metric added'})
+
+@bp.route('/history', methods=['GET'])
+def get_history():
+    user_id = session['user_id']
+    history = MetricService.get_history(user_id)
+    return jsonify(history)
+
+@bp.route('/<int:metric_id>', methods=['DELETE'])
+def delete_metric(metric_id):
+    user_id = session['user_id']
+    MetricService.delete_metric(user_id, metric_id)
+    return jsonify({'message': 'Metric deleted'})

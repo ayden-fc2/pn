@@ -1,6 +1,7 @@
 from app.repositories.invitation_repository import InvitationRepository
 from app.repositories.user_repository import UserRepository
 from app.repositories.challenge_repository import ChallengeRepository
+from app.repositories.family_repository import FamilyRepository
 from datetime import datetime, timedelta
 
 class InvitationService:
@@ -48,4 +49,16 @@ class InvitationService:
             # Handle acceptance logic
             if invitation['type'] == 'Challenge' and invitation['challenge_id']:
                 ChallengeRepository.join_challenge(user_id, invitation['challenge_id'])
-            # Add other types logic here (e.g. Family)
+            elif invitation['type'] == 'Family':
+                # Check if user is already in a family
+                if FamilyRepository.get_user_family_group(user_id):
+                    raise ValueError("You are already in a family group. Please leave your current group before joining a new one.")
+
+                # Add user to sender's family group
+                sender_group = FamilyRepository.get_user_family_group(invitation['sender_id'])
+                if sender_group:
+                    FamilyRepository.add_member(sender_group['group_id'], user_id)
+                else:
+                    # If sender has no group (shouldn't happen if logic is correct), maybe create one?
+                    # For now, we assume sender must be in a group to send family invite.
+                    pass

@@ -11,6 +11,15 @@ class MetricRepository:
         ''', [user_id, month])
 
     @staticmethod
+    def get_total_steps(user_id, month):
+        result = query_db('''
+            SELECT SUM(value) as total_steps
+            FROM HealthMetrics
+            WHERE user_id = ? AND metric_type = 'Steps' AND strftime('%Y-%m', recorded_date) = ?
+        ''', [user_id, month], one=True)
+        return result['total_steps'] if result and result['total_steps'] else 0
+
+    @staticmethod
     def get_latest_metric(user_id, metric_type):
         result = query_db('''
             SELECT value FROM HealthMetrics
@@ -21,10 +30,23 @@ class MetricRepository:
         return result['value'] if result else None
 
     @staticmethod
-    def add_metric(user_id, metric_type, value, date):
+    def add_metric(user_id, metric_type, value, unit, date):
         query_db('''
-            INSERT INTO HealthMetrics (user_id, metric_type, value, recorded_date)
-            VALUES (?, ?, ?, ?)
-        ''', [user_id, metric_type, value, date])
+            INSERT INTO HealthMetrics (user_id, metric_type, value, unit, recorded_date)
+            VALUES (?, ?, ?, ?, ?)
+        ''', [user_id, metric_type, value, unit, date])
+
+    @staticmethod
+    def get_recent_metrics(user_id, limit=50):
+        return query_db('''
+            SELECT * FROM HealthMetrics
+            WHERE user_id = ?
+            ORDER BY recorded_date DESC
+            LIMIT ?
+        ''', [user_id, limit])
+
+    @staticmethod
+    def delete_metric(user_id, metric_id):
+        query_db('DELETE FROM HealthMetrics WHERE user_id = ? AND metric_id = ?', [user_id, metric_id])
 
 

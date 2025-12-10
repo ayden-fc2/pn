@@ -8,6 +8,8 @@ import ChallengesView from '../views/ChallengesView.vue'
 import FamilyView from '../views/FamilyView.vue'
 import InvitationsView from '../views/InvitationsView.vue'
 import DelegationView from '../views/DelegationView.vue'
+import ReportsView from '../views/ReportsView.vue'
+import MetricsView from '../views/MetricsView.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -55,6 +57,18 @@ const routes: Array<RouteRecordRaw> = [
     path: '/delegation',
     name: 'delegation',
     component: DelegationView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/reports',
+    name: 'reports',
+    component: ReportsView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/metrics',
+    name: 'metrics',
+    component: MetricsView,
     meta: { requiresAuth: true }
   }
 ]

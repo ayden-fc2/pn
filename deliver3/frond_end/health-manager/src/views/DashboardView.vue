@@ -93,14 +93,20 @@
 
     <v-dialog v-model="showUpdateMetrics" max-width="500px">
       <v-card>
-        <v-card-title>Update Health Metrics</v-card-title>
+        <v-card-title>Add Health Metric</v-card-title>
         <v-card-text>
-          <v-text-field v-model="newWeight" label="Weight (kg)" type="number"></v-text-field>
-          <v-text-field v-model="newHeight" label="Height (cm)" type="number"></v-text-field>
+          <v-select
+            v-model="selectedMetricType"
+            :items="metricTypes"
+            label="Metric Type"
+            @update:model-value="updateUnit"
+          ></v-select>
+          <v-text-field v-model="metricValue" label="Value" type="number"></v-text-field>
+          <v-text-field v-model="metricUnit" label="Unit"></v-text-field>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="primary" text @click="updateMetrics">Save</v-btn>
+          <v-btn color="primary" text @click="addMetric">Add</v-btn>
           <v-btn color="grey" text @click="showUpdateMetrics = false">Cancel</v-btn>
         </v-card-actions>
       </v-card>
@@ -117,8 +123,11 @@ export default defineComponent({
   setup() {
     const summary = ref<any>(null)
     const showUpdateMetrics = ref(false)
-    const newWeight = ref('')
-    const newHeight = ref('')
+    
+    const metricTypes = ['Weight', 'Height', 'Blood Pressure', 'Steps', 'Heart Rate', 'Sleep', 'Run Distance']
+    const selectedMetricType = ref('Weight')
+    const metricValue = ref('')
+    const metricUnit = ref('kg')
 
     const fetchSummary = async () => {
       try {
@@ -129,20 +138,35 @@ export default defineComponent({
       }
     }
 
-    const updateMetrics = async () => {
+    const updateUnit = (type: string) => {
+      switch (type) {
+        case 'Weight': metricUnit.value = 'kg'; break;
+        case 'Height': metricUnit.value = 'cm'; break;
+        case 'Blood Pressure': metricUnit.value = 'mmHg'; break;
+        case 'Steps': metricUnit.value = 'count'; break;
+        case 'Heart Rate': metricUnit.value = 'bpm'; break;
+        case 'Sleep': metricUnit.value = 'hours'; break;
+        case 'Run Distance': metricUnit.value = 'km'; break;
+        default: metricUnit.value = '';
+      }
+    }
+
+    const addMetric = async () => {
       try {
-        if (newWeight.value) {
-          await api.post('/metrics', { type: 'Weight', value: Number(newWeight.value) })
+        if (selectedMetricType.value && metricValue.value) {
+          await api.post('/metrics', { 
+            type: selectedMetricType.value, 
+            value: Number(metricValue.value),
+            unit: metricUnit.value
+          })
+          
+          showUpdateMetrics.value = false
+          metricValue.value = ''
+          // Reset unit based on current selection or keep it? Let's keep it.
+          await fetchSummary()
         }
-        if (newHeight.value) {
-          await api.post('/metrics', { type: 'Height', value: Number(newHeight.value) })
-        }
-        showUpdateMetrics.value = false
-        newWeight.value = ''
-        newHeight.value = ''
-        await fetchSummary()
       } catch (error) {
-        console.error('Error updating metrics:', error)
+        console.error('Error adding metric:', error)
       }
     }
 
@@ -161,9 +185,12 @@ export default defineComponent({
       summary,
       getBmiCategory,
       showUpdateMetrics,
-      newWeight,
-      newHeight,
-      updateMetrics
+      metricTypes,
+      selectedMetricType,
+      metricValue,
+      metricUnit,
+      updateUnit,
+      addMetric
     }
   }
 })

@@ -26,4 +26,19 @@ class FamilyService:
     def leave_family(user_id):
         group = FamilyRepository.get_user_family_group(user_id)
         if group:
+            # Check if user is Admin
+            if group['role'] == 'Admin':
+                members = FamilyRepository.get_family_members(group['group_id'])
+                other_admins = [m for m in members if m['role'] == 'Admin' and m['user_id'] != user_id]
+                
+                if not other_admins:
+                    # No other admins
+                    other_members = [m for m in members if m['user_id'] != user_id]
+                    if other_members:
+                        raise ValueError("You are the only Admin. Please assign another Admin before leaving.")
+                    else:
+                        # Last member leaving, delete group
+                        FamilyRepository.delete_family_group(group['group_id'])
+                        return
+
             FamilyRepository.remove_member(group['group_id'], user_id)

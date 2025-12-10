@@ -45,7 +45,16 @@ INSERT INTO Providers (name, specialty, is_verified) VALUES
 ('Dr. Sarah Black', 'Dermatology', 1),
 ('Dr. David Blue', 'Orthopedics', 1),
 ('Dr. Lisa Grey', 'Pediatrics', 1),
-('Dr. Tom Brown', 'Neurology', 1);
+('Dr. Tom Brown', 'Neurology', 1),
+('Dr. James Wilson', 'Oncology', 1),
+('Dr. Patricia Moore', 'Psychiatry', 1),
+('Dr. Robert Taylor', 'Urology', 1),
+('Dr. Jennifer Anderson', 'Endocrinology', 0),
+('Dr. William Thomas', 'Gastroenterology', 1),
+('Dr. Elizabeth Jackson', 'Rheumatology', 0),
+('Dr. Christopher White', 'Pulmonology', 1),
+('Dr. Jessica Harris', 'Nephrology', 0),
+('Dr. Daniel Martin', 'Ophthalmology', 1);
 
 -- Insert UserProviders
 INSERT INTO UserProviders (user_id, provider_id, is_primary_care) VALUES 
@@ -106,23 +115,34 @@ INSERT INTO HealthMetrics (user_id, metric_type, value, unit, recorded_date) VAL
 (1, 'Weight', 80.5, 'kg', '2025-10-01 08:00:00'),
 (1, 'Weight', 80.0, 'kg', '2025-10-15 08:00:00'),
 (1, 'Weight', 79.5, 'kg', '2025-11-01 08:00:00'),
+(1, 'Height', 180, 'cm', '2025-10-01 08:00:00'), -- Added Height for BMI
 (1, 'Blood Pressure', 120, 'mmHg', '2025-10-01 08:05:00'), -- Systolic
-(1, 'Blood Pressure', 118, 'mmHg', '2025-11-01 08:05:00');
+(1, 'Blood Pressure', 118, 'mmHg', '2025-11-01 08:05:00'),
+(1, 'Steps', 8000, 'count', '2025-10-01 20:00:00'),
+(1, 'Steps', 9500, 'count', '2025-10-02 20:00:00'),
+(1, 'Steps', 10200, 'count', '2025-10-03 20:00:00'),
+(1, 'Steps', 7500, 'count', '2025-11-01 20:00:00'),
+(1, 'Steps', 11000, 'count', '2025-11-02 20:00:00');
 
 -- User 2 (Jane)
 INSERT INTO HealthMetrics (user_id, metric_type, value, unit, recorded_date) VALUES 
 (2, 'Weight', 65.0, 'kg', '2025-10-05 07:00:00'),
 (2, 'Weight', 64.5, 'kg', '2025-11-05 07:00:00'),
+(2, 'Height', 165, 'cm', '2025-10-05 07:00:00'), -- Added Height for BMI
 (2, 'Steps', 10500, 'count', '2025-11-01 20:00:00'),
 (2, 'Steps', 11000, 'count', '2025-11-02 20:00:00');
 
 -- User 3 (Alice)
 INSERT INTO HealthMetrics (user_id, metric_type, value, unit, recorded_date) VALUES 
-(3, 'Steps', 5000, 'count', '2025-11-01 18:00:00');
+(3, 'Steps', 5000, 'count', '2025-11-01 18:00:00'),
+(3, 'Height', 170, 'cm', '2025-11-01 18:00:00'),
+(3, 'Weight', 70.0, 'kg', '2025-11-01 18:00:00');
 
 -- User 5 (Charlie)
 INSERT INTO HealthMetrics (user_id, metric_type, value, unit, recorded_date) VALUES 
-(5, 'Run Distance', 5.2, 'km', '2026-01-02 07:00:00');
+(5, 'Run Distance', 5.2, 'km', '2026-01-02 07:00:00'),
+(5, 'Height', 175, 'cm', '2026-01-02 07:00:00'),
+(5, 'Weight', 75.0, 'kg', '2026-01-02 07:00:00');
 
 -- Family Groups
 INSERT INTO FamilyGroup (name) VALUES ('Doe Family'), ('Smith Family');
@@ -154,7 +174,9 @@ INSERT INTO Invitation (sender_id, challenge_id, type, target_email, status) VAL
 
 -- Monthly Reports
 INSERT INTO MonthlyReport (user_id, month, summary, steps_total) VALUES 
-(1, '2025-10', 'Good activity level.', 150000),
-(2, '2025-10', 'Moderate activity.', 100000),
-(3, '2025-11', 'Low activity.', 50000),
+(1, '2025-10', 'Avg Weight: 80.2kg. Avg BP: 120 mmHg. Total Steps: 27700. Appointments: 1.', 27700),
+(1, '2025-11', 'Avg Weight: 79.5kg. Avg BP: 118 mmHg. Total Steps: 18500. Appointments: 2.', 18500),
+(2, '2025-10', 'Avg Weight: 65.0kg. Appointments: 1.', 0),
+(2, '2025-11', 'Avg Weight: 64.5kg. Total Steps: 21500. Appointments: 1.', 21500),
+(3, '2025-11', 'Total Steps: 5000.', 5000),
 (5, '2026-01', 'Great start to the year.', 200000);

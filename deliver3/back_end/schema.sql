@@ -22,8 +22,7 @@ CREATE TABLE IF NOT EXISTS PhoneNumbers (
     user_id INTEGER NOT NULL, -- Foreign key referencing the User
     phone_number TEXT NOT NULL, -- The phone number string
     is_verified BOOLEAN DEFAULT 0, -- Whether the phone number has been verified
-    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
-    CONSTRAINT unique_user_phone UNIQUE (user_id) -- Constraint: One phone number per user (as per design)
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
 );
 
 -- Providers table: Stores information about healthcare providers (Doctors, Specialists, etc.).

@@ -11,7 +11,7 @@ class UserRepository:
             SELECT u.* 
             FROM Users u
             JOIN Emails e ON u.user_id = e.user_id
-            WHERE e.email_address = ? AND u.password = ?
+            WHERE e.email_address = ? AND u.password = ? AND e.is_verified = 1
         ''', [email, password], one=True)
 
     @staticmethod

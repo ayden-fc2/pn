@@ -24,7 +24,12 @@
           <v-card-title>Emails</v-card-title>
           <v-list>
             <v-list-item v-for="email in account.emails" :key="email.email_address">
-              <v-list-item-title>{{ email.email_address }}</v-list-item-title>
+              <v-list-item-title>
+                {{ email.email_address }}
+                <v-chip size="x-small" :color="email.is_verified ? 'success' : 'warning'" class="ml-2">
+                  {{ email.is_verified ? 'Verified' : 'Unverified' }}
+                </v-chip>
+              </v-list-item-title>
               <template v-slot:append>
                 <v-btn icon="mdi-delete" size="small" color="error" variant="text" @click="deleteEmail(email.email_address)"></v-btn>
               </template>
@@ -43,7 +48,12 @@
           <v-card-title>Phone Numbers</v-card-title>
           <v-list>
             <v-list-item v-for="phone in account.phones" :key="phone.phone_number">
-              <v-list-item-title>{{ phone.phone_number }}</v-list-item-title>
+              <v-list-item-title>
+                {{ phone.phone_number }}
+                <v-chip size="x-small" :color="phone.is_verified ? 'success' : 'warning'" class="ml-2">
+                  {{ phone.is_verified ? 'Verified' : 'Unverified' }}
+                </v-chip>
+              </v-list-item-title>
               <template v-slot:append>
                 <v-btn icon="mdi-delete" size="small" color="error" variant="text" @click="deletePhone(phone.phone_number)"></v-btn>
               </template>
@@ -62,7 +72,13 @@
           <v-card-title>Linked Providers</v-card-title>
           <v-list>
             <v-list-item v-for="provider in account.providers" :key="provider.provider_id">
-              <v-list-item-title>{{ provider.provider_name }}</v-list-item-title>
+              <v-list-item-title>
+                {{ provider.provider_name }}
+                <v-chip size="x-small" :color="provider.is_verified ? 'success' : 'warning'" class="ml-2">
+                  {{ provider.is_verified ? 'Verified' : 'Unverified' }}
+                </v-chip>
+              </v-list-item-title>
+              <v-list-item-subtitle>{{ provider.specialty }}</v-list-item-subtitle>
               <template v-slot:append>
                 <v-btn icon="mdi-link-off" size="small" color="error" variant="text" @click="unlinkProvider(provider.provider_id)"></v-btn>
               </template>
