@@ -4,7 +4,7 @@
 本项目旨在开发“健康追踪个人健康平台 (Health Track Personal Wellness Platform)”的完整应用程序系统。在第 3 阶段中，我们基于第 2 阶段的设计规范，构建了后端 API 服务和前端用户界面，并对数据库模式进行了必要的扩展和优化，以支持更复杂的业务逻辑，如家庭组、用户委托和邀请机制。
 
 ## 2. 数据库模式与构建 (SQL Database Construction)
-
+![](./preview/health_track.db.png)
 ### 2.1 数据库模式 (Schema)
 我们使用 SQLite 作为关系型数据库。最终的数据库模式包含以下主要实体及其关系：
 
