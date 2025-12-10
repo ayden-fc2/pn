@@ -1,5 +1,6 @@
 import os
-from flask import Flask
+import sqlite3
+from flask import Flask, jsonify
 from flask_cors import CORS
 from . import db
 from .api import auth, account, appointments, challenges, summary, metrics, family, delegation, invitations, reports
@@ -23,6 +24,21 @@ def create_app(test_config=None):
         pass
 
     db.init_app(app)
+
+    # Register Error Handlers
+    @app.errorhandler(sqlite3.Error)
+    def handle_database_error(e):
+        return jsonify({'error': f"Database error: {str(e)}"}), 400
+
+    @app.errorhandler(ValueError)
+    def handle_value_error(e):
+        return jsonify({'error': str(e)}), 400
+
+    @app.errorhandler(Exception)
+    def handle_generic_error(e):
+        # Log the error here if logging was set up
+        print(f"Error: {e}")
+        return jsonify({'error': f"An unexpected error occurred: {str(e)}"}), 500
 
     app.register_blueprint(auth.bp)
     app.register_blueprint(account.bp)
