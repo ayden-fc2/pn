@@ -155,3 +155,32 @@ CREATE TABLE IF NOT EXISTS MonthlyReport (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_primary_care 
 ON UserProviders(user_id) 
 WHERE is_primary_care = 1;
+
+-- Indexes for performance optimization
+-- Users: Often queried by name for search
+CREATE INDEX IF NOT EXISTS idx_users_name ON Users(first_name, last_name);
+
+-- Emails: Often queried by user_id
+CREATE INDEX IF NOT EXISTS idx_emails_user_id ON Emails(user_id);
+
+-- PhoneNumbers: Often queried by user_id
+CREATE INDEX IF NOT EXISTS idx_phones_user_id ON PhoneNumbers(user_id);
+
+-- Appointments: Often queried by user_id, provider_id, and date
+CREATE INDEX IF NOT EXISTS idx_appointments_user_id ON Appointments(user_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_provider_id ON Appointments(provider_id);
+CREATE INDEX IF NOT EXISTS idx_appointments_date ON Appointments(appointment_date);
+
+-- HealthMetrics: Often queried by user_id, type, and date for reports/dashboard
+CREATE INDEX IF NOT EXISTS idx_metrics_user_type_date ON HealthMetrics(user_id, metric_type, recorded_date);
+
+-- UserChallenges: Often queried by user_id and status
+CREATE INDEX IF NOT EXISTS idx_user_challenges_user_status ON UserChallenges(user_id, status);
+
+-- Invitations: Often queried by target email/phone or sender
+CREATE INDEX IF NOT EXISTS idx_invitations_target_email ON Invitation(target_email);
+CREATE INDEX IF NOT EXISTS idx_invitations_sender_id ON Invitation(sender_id);
+
+-- FamilyMembership: Often queried by group_id or user_id
+CREATE INDEX IF NOT EXISTS idx_family_membership_group_id ON FamilyMembership(group_id);
+CREATE INDEX IF NOT EXISTS idx_family_membership_user_id ON FamilyMembership(user_id);

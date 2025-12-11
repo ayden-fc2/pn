@@ -37,6 +37,8 @@
     *   用户与家庭组的唯一成员关系。
     *   监护人与被监护人的唯一对应关系。
     *   **部分唯一索引 (Partial Unique Index)**: 在 `UserProviders` 表上实现了 `WHERE is_primary_care = 1` 的唯一索引，确保每个用户至多只能有一位主治医生 (Primary Care Provider)。
+*   **性能索引 (Performance Indexes)**:
+    *   为了优化查询速度，我们在常用查询字段（如 `user_id`, `date`, `type`）上创建了非唯一索引。例如 `idx_appointments_user_id` 和 `idx_metrics_user_type_date`。
 
 ### 2.3 业务逻辑约束 (Application-Level Constraints)
 除了数据库层面的约束外，我们在应用层 (Service Layer) 实现了以下关键业务规则，以满足 Phase 2 的设计要求：
@@ -106,6 +108,9 @@
     *   **登录保护**: 实现了强制邮箱验证检查。用户登录时，系统会检查关联邮箱的 `is_verified` 状态，未验证邮箱无法登录。
     *   **状态可视化**: 在前端帐户页面，邮箱、电话号码和医疗提供者均会显示 "Verified"（绿色）或 "Unverified"（黄色）标签，让用户清晰了解验证状态。
 
+#### 3.2.7 系统健壮性 (System Robustness)
+*   **全局错误处理**: 为了防止后端抛出原始 HTML 错误页面破坏前端 JSON 解析，我们在 `app/__init__.py` 中实现了全局错误处理器 (`@app.errorhandler`)。无论是数据库完整性错误 (`sqlite3.IntegrityError`) 还是通用服务器错误，系统都会捕获并返回结构化的 JSON 错误信息 (HTTP 400/500)，极大提升了系统的稳定性和调试效率。
+
 ## 4. 实施过程中的问题与解决方案
 
 ### 4.1 数据库模式的演进
@@ -117,6 +122,9 @@
 ### 4.2 复杂查询与性能
 *   **问题**: Dashboard 需要聚合多张表的数据（指标、预约、挑战、邀请），如果分多次 API 调用会导致前端加载缓慢。
 *   **解决方案**: 在后端 `SummaryService` 中封装了聚合逻辑，一次性查询所有必要数据（BMI 计算、计数统计、列表获取），并通过单一 API `/summary` 返回给前端，提高了页面加载速度。
+*   **数据库索引优化**:
+    *   针对随着数据量增长可能出现的查询延迟，我们在 `schema.sql` 中添加了多个索引（Index）。
+    *   为了验证索引的有效性，我们编写了 `check_index.py` 脚本，使用 `EXPLAIN QUERY PLAN` 分析 SQL 执行计划。测试结果表明，关键查询（如获取最新健康指标、查询预约列表）已从全表扫描 (SCAN TABLE) 优化为索引查找 (SEARCH TABLE USING INDEX)。
 
 ### 4.3 数据一致性
 *   **问题**: 删除用户时，相关的预约、挑战记录、家庭成员关系可能会变成孤儿数据。
